@@ -1,0 +1,88 @@
+html, body {
+	width:100%;
+	height:100%;
+	font-size:10px;
+}
+
+.blockCenter {
+	position:absolute; top:0; bottom:0; margin:auto;
+}
+
+header, section, footer {
+	position:relative;
+}
+
+header {
+	width:100%;
+	height:8.5%;
+}
+
+section {
+	width:100%;
+	height:83%;
+}
+
+footer {
+	width:100%;
+	height:8.5%;
+}
+
+.fontSize12{
+	font-size:11px;
+}
+
+.fontSize8 {
+	font-size:10px;
+}
+
+.font10em {
+	font-size:1.0em;
+}
+
+.font12em {
+	font-size:1.2em;
+}
+
+.font13em {
+	font-size:1.3em;
+}
+
+.font14em {
+	font-size:1.4em;
+}
+
+.font16em {
+	font-size:1.6em;
+}
+
+.font18em {
+	font-size:1.8em;
+}
+
+.font20em {
+	font-size:2em;
+}
+
+.font22em {
+	font-size:2.2em;
+}
+
+.textCenter {
+	text-align:center;
+}
+
+.textLeft {
+	text-align:left;
+}
+
+.textRight {
+	text-align:right;
+}
+
+.textColorBlue {
+	color:blue;
+}
+
+.textColorRed {
+	color:red;
+}

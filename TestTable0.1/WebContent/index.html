@@ -1,0 +1,595 @@
+<!DOCTYPE html> 
+<html> 
+	<head> 
+		<meta charset="UTF-8"> 
+		<link rel="stylesheet" href="./resource/css/dist/css/bootstrap.min.css" />
+		<link href="./resource/dist/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet" />
+		<link href="./resource/dist/dist/bootstrap-table.min.css" rel="stylesheet" />
+
+		<script src="./resource/js/jquery.min.js"></script>
+		<script src="./resource/js/bootstrap.min.js"></script>
+		<script src="./resource/dist/bootstrap3-editable/js/bootstrap-editable.js"></script>
+		<script src="./resource/dist/dist/bootstrap-table.js"></script>
+		<script src="./resource/dist/dist/locale/bootstrap-table-zh-CN.js"></script>
+		<script src="./resource/dist/dist/extensions/editable/bootstrap-table-editable.js"></script>
+		
+		<title>科目管理</title>
+		<link rel="icon" href="./title.ico" type="image/x-icon"></link>
+		<style type="text/css">
+			.rightMove {
+				position:relative;
+				left:100px;
+			}
+			
+			.navbar-left {
+				position:relative;
+				left:100px;
+			}
+			.navbar-right {
+				position:relative;
+				right:100px;
+			}
+			
+			#photo {
+				display: block;
+				width:100px;
+				height:150px;
+			}
+			
+			.font16{
+				font-size:16px;	
+			}
+
+			.top30 {
+				position: relative;
+			  	top: 30px;
+			  	margin: auto;
+			  	left:-50px;
+			}
+
+			.floatLeft {
+				float: left;
+			}
+			
+			.floatRight {
+				float: right;
+			}
+			
+			.divXCenter {/*前提：此div需设置宽度*/
+				margin:0 auto;
+			}
+			
+			.textXCenter {
+				text-align: center;
+			}
+			#div_ShowComplexSubject {
+				position: relative;
+				top: 30px;
+			}
+			#div_subjectRelation {
+				color: red;
+			}
+			.display_none {
+				display: none;
+			}
+			#submitModify, #modify {
+				position: absolute;
+				bottom: 10px;
+				right: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<nav class="navbar navbar-default" role="navigation">
+			  <div class="container-fluid">
+			    <div class="navbar-header rightMove">
+			      <a class="navbar-brand" href="#">微易码科技</a>
+			    </div>
+			    <ul class="nav navbar-nav navbar-left">
+			    	<li class="active"><a href="#">首页</a></li>
+					<li><a href="#">科目管理</a></li>
+			    </ul>
+			    <ul class="nav navbar-nav navbar-right">
+			      <li><a href="#" id="logout"><span class="glyphicon glyphicon-log-out"></span> 登出</a></li>
+			    </ul>
+			   </div>
+			</nav>
+		</header>
+		<section class="container">
+			<div class="row">
+				<div class="col-md-1 top30">
+					<img src="./resource/pic/山新.jpg" alt="照片" id="photo" class="divXCenter"></img>
+					<div id="name" class="font16 textXCenter">山新</div>
+					<div id="id" class="font16 textXCenter">123456</div>
+					
+				</div>
+				<div class="col-md-11">
+					<div id="toolbar">
+						<button type="button" class="btn btn-default" id="addData"><span style="color:#008000;background-color:#efefef;font-weight:bold;"></span><span class="glyphicon glyphicon-plus"></span> 添加</button>
+						<button type="button" class="btn btn-success" id="submitData">提交</button>
+				<!-- 	<button type="button" class="btn btn-default" id="modifyData"><span style="color:#008000;background-color:#efefef;font-weight:bold;"></span><span class="glyphicon glyphicon-wrench"></span> 修改</button>
+						<button type="button" class="btn btn-success" id="submitModify">提交</button>	 -->
+					</div>
+					
+					<table id="tb_user" class="table table-striped table-bordered table-hover">
+					</table>
+					<div class="panel panel-default"  id="div_ShowComplexSubject">
+						<div class="panel-heading">
+							<h3 class="panel-title" id="h3_complexSubjectTitle">
+							</h3>
+						</div>
+						<div class="panel-body">
+							<div id="div_subjectRelation"></div>
+							<div id="check"><button type="button" class="btn btn-success" id="modify">修改</button></div>
+							<div id="check"><button type="button" class="btn btn-success" id="submitModify">提交</button></div>
+						</div>
+					</div>
+					</div>
+				</div>
+		</section>
+	</body>
+	<script>
+		$(function () {
+			console.log(document.all);
+			var subjectNameObj = {};//{科目名称: "科目编号"}
+			var subjectRelationObj = {};//{复合科目对应的单一科目: ""}
+			var initView = function() {
+				$("#submitData").addClass("display_none");
+				$("#div_ShowComplexSubject").addClass("display_none");
+				$("#submitModify").addClass("display_none");
+			};
+			initView();
+			
+			var curRow = {};
+			var allData = [];
+			$("#tb_user").bootstrapTable({
+	            toolbar: "#toolbar",
+	            pagination: true,
+	            showRefresh: true,
+	            showToggle: true,
+	            showPaginationSwitch: true,
+	            pageSize: 5, 
+	            search: true,
+	            trimOnSearch: true,
+	            clickToSelect: false,
+	            queryParams: function (param) {
+	                return {};
+	            },
+	            url: "./querySubject",
+	            columns: [{
+	                field: "subjectName",
+	                title: "科目名称",
+	                align: 'center',
+	                width: '40%',
+	                editable: {
+	                    type: 'text',
+	                    title: '编辑科目名称',
+	                    emptytext: '请输入科目名称(必填)',
+	                    mode: "inline",
+	                    validate: function (value) { //字段验证
+	    	            	if (!$.trim(value)) {
+	    	                    return '不能为空';
+	    	                }
+	    			 	}
+	                }
+	            }, {
+	                field: "subjectComplex",
+	                title: "科目属性",
+	                align: 'center',
+	                width: "30%",
+	                editable: {
+			            type: "select",              //编辑框的类型。支持text|textarea|select|date|checklist等
+			            source: [{ value: '0', text: "单一科目"}, { value: '1', text: "复合科目" }],
+			            title: "选择科目属性",           //编辑框的标题
+			            disabled: false,           //是否禁用编辑
+			            emptytext: "请选择科目属性(必选)",       //空值的默认文本
+			            mode: "popup",            //编辑框的模式：支持popup和inline两种模式，默认是popup
+			            validate: function (value) { //字段验证
+			                if (!$.trim(value)) {
+			                    return '不能为空';
+			                }
+			            }
+			        }
+	            }, {
+	                field: "subjectStatus",
+	                title: "科目状态",
+	                align: 'center',
+	                width: "30%",
+	                editable: {
+			            type: "select",              //编辑框的类型。支持text|textarea|select|date|checklist等
+			            source: [{ value: '0', text: "有效" }, { value: '1', text: "无效" }],
+			            title: "选择科目状态",           //编辑框的标题
+			            disabled: false,           //是否禁用编辑
+			            emptytext: "请选择科目状态(必选)",       //空值的默认文本
+			            mode: "popup",           //编辑框的模式：支持popup和inline两种模式，默认是popup
+			            validate: function (value) { //字段验证
+			                if (!$.trim(value)) {
+			                    return '不能为空';
+			                }
+			            }
+			        }
+	            }],
+	            onClickRow: function (row, $element) {
+	            	$(":checkbox").prop("disabled", "true");
+	            	if(row.subjectId !== curRow.subjectId) {
+	            		$("#check input").removeAttr("checked");
+	            	}
+	            	
+	            	if(row.subjectComplex == "0" || row.subjectComplex == "") {
+	            		$("#div_ShowComplexSubject").addClass("display_none");
+	            	} else if(row.subjectComplex == "1") {
+	            		$("#div_ShowComplexSubject").removeClass("display_none");
+	            		//$(":checkbox").prop("disabled", "true");
+	            	}
+	            	
+	            	$("#h3_complexSubjectTitle").text(row.subjectName);
+	            	var temp = "";
+	            	var subjectRelationLength = row.subjectRelation.length;
+	            	if(subjectRelationLength > 1) {
+	            		for(var i = 0; i < subjectRelationLength; i++) {
+		            		//temp += (i !== 0 ? ", " + singleSubjectObj[row.subjectRelation[i]] : singleSubjectObj[row.subjectRelation[i]]);
+		            		$("#check_" + row.subjectRelation[i])[0].checked = "true";
+		            	}
+		            	//$('#div_subjectRelation').text(temp);
+	            	}
+	            	curRow = row;
+	            },
+	            onLoadSuccess: function (data) {
+	            	console.log("data:" , data);
+	            	allData = data;
+	            	var temp = "";
+	            	for(var i = 0; i < data.length; i++) {
+	            		subjectNameObj[data[i].subjectName] = data[i].subjectId;
+	            		subjectRelationObj[data[i].subjectRelation] = data[i].subjectId;
+	            		temp = "<span id='spanCheck_"  + data[i].subjectId + "'><input type='checkbox' id='check_" + data[i].subjectId + "' value='" + data[i].subjectId + "'/><label for='check_" + data[i].subjectId + "'>&nbsp" + data[i].subjectName + "&nbsp &nbsp</label></span>";
+	            		$("#check").append(temp);
+	            		if(data[i].subjectComplex == "1") {
+	            			$("#spanCheck_" + data[i].subjectId).addClass("display_none");
+	            		}
+	            	}
+	            },
+	            onEditableInit: function () {
+	                return false;
+	            },
+	            onEditableShown: function (field, row, $el, editable) {
+	            //	console.log()
+	                return false;
+	            },
+	            onEditableHidden: function (field, row, $el, reason) {
+	            //	console.log()
+	                return false;
+	            },
+	            onEditableSave: function (field, row, oldValue, $el) {
+	            	console.log("row:=====", row);
+	            	console.log("field===", field);
+	            	console.log("oldValue==", oldValue);
+	            	
+	            	if(row.subjectComplex == "0" || row.subjectComplex == "") {
+	            		$("#div_ShowComplexSubject").addClass("display_none");
+	            	} else {
+	            		$("#div_ShowComplexSubject").removeClass("display_none");
+	            	}
+	            	if(oldValue !== "" && $("#submitData").hasClass("display_none")) {//修改
+	            		if(field == "subjectName") {//修改科目名称
+	            			if(typeof subjectNameObj[row.subjectName] !== 'undefined') {
+    	            			alert("此科目名称已存在，请进行修改！");
+    	            			return;
+    	            		} else {
+    	            			delete subjectNameObj[oldValue];
+    	            			subjectNameObj[row.subjectName] = row.subjectId;
+    	            			$("#spanCheck_" + row.subjectId + " label")[0].innerHTML = "&nbsp" + row.subjectName + "&nbsp&nbsp";
+    	            		}
+	            		}
+	            		if(field == "subjectComplex") {
+	            			if(oldValue == "1" && row.subjectComplex == '0') {//将复合改为单一
+	            				for(var i = 0; i < row.subjectRelation.length; i++) {
+	            					$("#check_" + row.subjectRelation[i]).removeAttr("checked");
+	            				}
+            					delete subjectRelationObj[row.subjectRelation];
+            					row.subjectRelation = [];
+    	            			row.subjectRelation.push(row.subjectId);
+    	            			$("#spanCheck_" + row.subjectId).removeClass("display_none");
+	            			} else if(oldValue == "0" && row.subjectComplex == "1") {//将单一改为复合
+	            				$("#spanCheck_" + row.subjectId).addClass("display_none");
+	            			}
+	            		}
+	            		row.changeCell = field;
+	            		$.ajax({
+		                    type: "post",
+		                    url: "./modify",
+		                    data: row,
+		                    dataType: "text",
+		                    traditional: true,//***
+		                    success: function (data, status) {
+		                        if (status == "success") {
+		                           // alert(decodeURI(data));
+		                           alert(data);
+		                        }
+		                    },
+		                    error: function (json) {
+		                    	console.log("error:", json);
+		                      //  alert('编辑失败');
+		                    }
+		                 });
+	            		console.log("afterRow:=====", row);
+	            	} else {//添加
+	            		$(":checkbox").removeAttr("disabled", "true");
+	            		$("#modify").addClass("display_none");
+	            		if(row.subjectName !== "" && row.subjectName.length <= 20 && row.subjectComplex !== "" && row.subjectStatus !== "") {
+		            		$("#submitData")[0].disabled = false;
+		            		row.subjectId = String(allData.length + 1000).substring(1);
+		            		console.log("subjectNameObj", subjectNameObj);
+	            			$("#submitData")[0].onclick = function() {
+	            				var submitJudge = function() {
+	            					if(typeof subjectNameObj[row.subjectName] !== 'undefined') {
+		    	            			alert("此科目名称已存在，请进行修改！");
+		    	            			return false;
+		    	            		}
+	            					if(row.subjectComplex == "1") {
+		    	            			if($('input[type="checkbox"]:checked').length <= 1) {
+			    	            			alert("请对复合科目进行正确的选择！(注：勾选项目为两个或两个以上)");
+			    	            			return false;
+		    	            			} else if($('input[type="checkbox"]:checked').length > 1) {
+		    	            				row.subjectRelation = [];
+			    	            			$('input[type="checkbox"]:checked').each(function(key, value) {
+			    	            				row.subjectRelation.push(value.value);
+			    	            			});
+			    	            			if(typeof subjectRelationObj[row.subjectRelation] !== "undefined") {
+				    	            			alert("此复合科目与单一科目的对应关系以存在，请重新选择！");
+				    	            			return false;
+				    	            		}
+		    	            			}
+		    	            			$("#check").append("<input type='checkbox' id='check_" + row.subjectId + "' value='" + row.subjectId + "'/><label for='check_" + row.subjectId + "'>&nbsp" + row.subjectName + "&nbsp &nbsp</label></span>");
+		    	            			$("#spanCheck_" + row.subjectId).addClass("display_none");
+		    	            		}
+	            					return true;
+	            				}
+	    	            		if(submitJudge() == false) {
+	    	            			return;
+	    	            		}
+	            				
+	    	            		if(row.subjectComplex == "0") {
+	    	            			row.subjectRelation = [];
+	    	            			row.subjectRelation.push(row.subjectId);
+	    	            			$("#check").append("<input type='checkbox' id='check_" + row.subjectId + "' value='" + row.subjectId + "'/><label for='check_" + row.subjectId + "'>&nbsp" + row.subjectName + "&nbsp &nbsp</label></span>");
+	    	            		}
+	    	            		subjectRelationObj[row.subjectRelation] = row.subjectId;
+		    	            	subjectNameObj[row.subjectName] = row.subjectId;
+	    	            		allData.push(row);
+	            				$.ajax({
+				                    type: "post",
+				                    url: "./Editable/Edit",
+				                    data: row,
+				                    dataType: "json",
+				                    traditional: true,//***
+				                    success: function (data, status) {
+				                    	console.log("success:", data);
+				                        if (status == "success") {
+				                            alert('提交数据成功');
+				                            $("#submitData").addClass("display_none");
+				                            $("#addData").removeClass("display_none");
+				                           	//$("#tb_user").bootstrapTable('updateRow', {index: allData.length, row: row});
+				                        }
+				                    },
+				                    error: function (json) {
+				                    	//console.log("error:", json);
+				                      //  alert('编辑失败');
+				                    }
+				                });
+	            			};
+		            	}
+	            	}
+	            }
+	        });
+			$("#addData").click(function() {
+				$("#tb_user").bootstrapTable('insertRow', {index: 0, row: {subjectId: "", subjectName: "", subjectComplex: "", subjectRelation: [], subjectStatus: ""}});
+				$("#addData").addClass("display_none");
+				$("#submitData").removeClass("display_none");
+				$("#submitData")[0].disabled = "true";
+			});
+			
+			$("#modify").click(function() {
+				$("#modify").addClass("display_none");
+				$("#submitModify").removeClass("display_none");
+				$(":checkbox").removeAttr("disabled", "true");
+				//$("#submitModify").prop("disabled", "true")
+				//$("#submitModify")[0].disabled = "true";
+				
+				
+			});
+			
+			$("#submitModify").click(function() {
+				console.log("subjectRelationObj: ", subjectRelationObj);
+				console.log("curRow: ", curRow);
+				console.log("curRow.subjectRelation.length ：： curRow.subjectName", curRow.subjectRelation.length, "::", curRow.subjectName);
+				if(curRow.subjectRelation.length > 1) {//复合关系做改变
+					if($('input[type="checkbox"]:checked').length > 1) {
+						var temp = [];
+            			$('input[type="checkbox"]:checked').each(function(key, value) {
+            				temp.push(value.value);
+            			});
+            			if(curRow.subjectRelation == temp) {
+            				return;
+            			} else {
+            				delete subjectRelationObj[curRow.subjectRelation];
+            				curRow.subjectRelation = [];
+            				curRow.subjectRelation = temp;
+            				
+            			}
+    					
+            			if(typeof subjectRelationObj[curRow.subjectRelation] !== "undefined") {
+	            			alert("此复合科目与单一科目的对应关系以存在，请重新选择！");
+	            			return;
+	            		}
+            			subjectRelationObj[curRow.subjectRelation] = curRow.subjectId;
+					} else {
+						alert("请对复合科目进行正确的选择！(注：勾选项目为两个或两个以上)");
+            			return;
+					}
+					curRow.changeCell = "1>1";
+				} else {//单一变复合
+					if($('input[type="checkbox"]:checked').length > 1) {
+						curRow.subjectRelation = [];
+	        			$('input[type="checkbox"]:checked').each(function(key, value) {
+	        				curRow.subjectRelation.push(value.value);
+	        			});
+	        			if(typeof subjectRelationObj[curRow.subjectRelation] !== "undefined") {
+	            			alert("此复合科目与单一科目的对应关系以存在，请重新选择！");
+	            			return;
+	            		}
+					} else {
+						alert("请对复合科目进行正确的选择！(注：勾选项目为两个或两个以上)");
+	        			return;
+					}
+					curRow.changeCell = "0>1";
+				}
+				$.ajax({
+                    type: "post",
+                    url: "./modify",
+                    data: curRow,
+                    dataType: "text",
+                    traditional: true,//***
+                    success: function (data, status) {
+                    	console.log("success:", data);
+                        if (status == "success") {
+                           // alert(decodeURI(data));
+                           alert(data);
+                            $("#modify").removeClass("display_none");
+                            $("#submitModify").addClass("display_none");
+                            $("#check input").prop("disabled", "true");
+                        }
+                    },
+                    error: function (json) {
+                    	console.log("error:", json);
+                      //  alert('编辑失败');
+                    }
+                 });
+			});
+			/*var modifyJudge = function() {
+    		if(field == "subjectComplex") {
+    			if(oldValue == "0" && row.subjectComplex == "1") {//将单一改为复合
+    				$(":checkbox").prop("disabled", "true");
+    				
+					
+    			} else if(oldValue == "1") {
+    				if(row.subjectComplex == '0') {//将复合改为单一
+    					delete subjectRelationObj[row.subjectRelation];
+    					row.subjectRelation = [];
+            			row.subjectRelation.push(row.subjectId);
+            			$("#check").append("<input type='checkbox' id='check_" + row.subjectId + "' value='" + row.subjectId + "'/>&nbsp" + row.subjectName + "&nbsp &nbsp");
+    				} else {//将复合关系作改变
+    					if($('input[type="checkbox"]:checked').length > 1) {
+    						var temp = [];
+	            			$('input[type="checkbox"]:checked').each(function(key, value) {
+	            				temp.push(value.value);
+	            			});
+	            			if(row.subjectRelation == temp) {
+	            				return;
+	            			} else {
+	            				delete subjectRelationObj[row.subjectRelation];
+	            				row.subjectRelation = [];
+	            				row.subjectRelation = temp;
+	            			}
+        					
+	            			if(typeof subjectRelationObj[row.subjectRelation] !== "undefined") {
+    	            			alert("此复合科目与单一科目的对应关系以存在，请重新选择！");
+    	            			return;
+    	            		}
+	            			subjectRelationObj[row.subjectRelation] = row.subjectRelation;
+    					} else {
+    						alert("请对复合科目进行正确的选择！(注：勾选项目为两个或两个以上)");
+	            			return;
+    					}
+    				}
+    			}
+    		}
+    		return true;
+		}
+		if(modifyJudge() == true) {
+			$.ajax({
+                   type: "post",
+                   url: "./modify",
+                   data: row,
+                   dataType: "json",
+                   traditional: true,//***
+                   success: function (data, status) {
+                   	console.log("success:", data);
+                       if (status == "success") {
+                           alert('提交数据成功');
+                           $("#submitData").addClass("display_none");
+                           $("#addData").removeClass("display_none");
+                          	//$("#tb_user").bootstrapTable('updateRow', {index: allData.length, row: row});
+                       }
+                   },
+                   error: function (json) {
+                   	console.log("error:", json);
+                     //  alert('编辑失败');
+                   }
+				});
+		}*/
+		});
+		/*
+		var subjectRelationSource = [];//科目组成中的内容
+		$.ajax({
+        type: "post",
+        url: "./querySubject",
+        data: {manage:"123456"},
+        dataType: "json",
+        success: function (data, status) {
+        	console.log("success:", data);
+        	
+        	for(var i = 0; i < data.length; i++) {
+        		console.log(data[i].subjectId + "..." + data[i].subjectName + "..." + data[i].subjectComplex + "..." + data[i].subjectRelation + "..." + data[i].subjectStatus);
+        		if(data[i].subjectComplex == "0") {
+        			subjectRelationSource.push({value:data[i].subjectId, text:data[i].subjectName});
+        		}
+        	}
+        },
+        error: function (json) {
+        	console.log("error querySubject:", json);
+        }
+	});
+	
+		{
+       	    field: "subjectId",
+            title: "科目编号",
+        }, {
+            field: "subjectRelation",
+            title: "科目组成",
+            editable: {
+                type: "checklist",
+                separator:",",
+                emptytext: "请选择科目组成",
+                source: function () {
+                    var result = [];
+                    $.ajax({
+                        url: './getSingleSubject',
+                        async: false,
+                        type: "get",
+                        data: {},
+                        success: function (data, status) {
+                            $.each(data, function (key, value) {
+                                result.push({ value: value.singleSubjectId, text: value.singleSubjectName });
+                            });
+                        }
+                    });
+                    return result;
+                },
+               // title: "选择科目组成"
+            },
+            validate: function (value) { //字段验证
+            	alert($.trim(value));
+            	alert("触发时机");
+            	alert(curRow["subjectComplex"]);
+            	if(curRow.subjectComplex == "1") {
+            		return '单一科目不能复选';
+            	}
+                if (!$.trim(value)) {
+                    return '不能为空';
+                }
+            }
+        },
+	*/
+	</script>
+</html>
