@@ -146,7 +146,7 @@
 			$("#tb_user").bootstrapTable({
 	            toolbar: "#toolbar",
 	            pagination: true,
-	            showRefresh: true,
+	           // showRefresh: true,
 	            showToggle: true,
 	            showPaginationSwitch: true,
 	            pageSize: 5, 
@@ -166,7 +166,7 @@
 	                    type: 'text',
 	                    title: '编辑科目名称',
 	                    emptytext: '请输入科目名称(必填)',
-	                    mode: "inline",
+	                    mode: "popup",
 	                    validate: function (value) { //字段验证
 	    	            	if (!$.trim(value)) {
 	    	                    return '不能为空';
