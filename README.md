@@ -16,11 +16,5 @@
 * 前端没有进行`MVC`分类，代码耦合度高，难以修改
 * 代码复用性低，好多重复代码段，应单独出来做成方法调用
 * 方法功能不够简单、单一
-### 页面效果图
-* 页面构造图<br>
-![页面构造图](https://github.com/enka33/subjectManagement/raw/gh-pages/TestTable0.1/WebContent/resource/pic/pagesPic/构造图.png)
-* 查看复合科目<br>
-![查看复合科目](https://github.com/enka33/subjectManagement/raw/gh-pages/TestTable0.1/WebContent/resource/pic/pagesPic/复合科目查看.png)
-* 修改科目名称<br>
-				![修改科目名称](https://github.com/enka33/subjectManagement/raw/gh-pages/TestTable0.1/WebContent/resource/pic/pagesPic/修改名称.png)
+
 			
